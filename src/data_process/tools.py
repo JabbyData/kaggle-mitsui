@@ -32,3 +32,11 @@ def check_similar_vals(s1: pd.Series, s2: pd.Series, precision: int):
             return False
 
     return True
+
+
+def split_lag(s: pd.Series, relevant_lags: list):
+    res_df = pd.DataFrame()
+    for lag in relevant_lags:
+        res_df["L" + str(lag)] = s.shift(-lag)
+
+    return res_df.dropna()
