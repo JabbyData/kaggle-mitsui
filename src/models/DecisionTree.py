@@ -100,3 +100,39 @@ class RandomForestEstimator:
         )
 
         fig.show()
+
+    def select_feature(self, X: np.array, y: np.array, n_seed_iter: int = 10):
+        assert (
+            self.rf_regressor is not None
+        ), "No model assigned, please fine-tune the model first calling fine_tune"
+        tscv = TimeSeriesSplit(n_splits=self.cv_folds)
+        baseline_score = 0.0
+        for train_index, valid_index in tscv.split(X):
+            self.rf_regressor.fit(X[train_index], y[train_index])
+            preds = self.rf_regressor.predict(X[valid_index])
+            baseline_score += mean_squared_error(y[valid_index], preds)
+        baseline_score /= self.cv_folds
+
+        scores = {"baseline": baseline_score}
+        for feature_index in range(X.shape[1]):
+            print(f"Analyzing feature n° {feature_index + 1}/{X.shape[1]}")
+            scores[feature_index] = []
+            for seed_iter in np.random.randint(0, 10000, size=n_seed_iter):
+                score = 0.0
+                for train_index, valid_index in tscv.split(X):
+                    X_train = X[train_index].copy()
+                    y_train = y[train_index]
+                    X_valid = X[valid_index].copy()
+                    y_valid = y[valid_index]
+                    X_train[:, feature_index] = np.random.RandomState(
+                        seed_iter
+                    ).permutation(X_train[:, feature_index])
+                    self.rf_regressor.fit(X_train, y_train)
+                    X_valid[:, feature_index] = np.random.RandomState(
+                        seed_iter
+                    ).permutation(X_valid[:, feature_index])
+                    preds = self.rf_regressor.predict(X_valid)
+                    score += mean_squared_error(y_valid, preds)
+                scores[feature_index].append(score / self.cv_folds)
+
+        return scores
