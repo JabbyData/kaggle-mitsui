@@ -13,6 +13,7 @@ from sklearn.metrics import (
 )
 import tabulate
 import plotly.graph_objects as go
+import math
 
 
 class RandomForestEstimator:
@@ -34,7 +35,7 @@ class RandomForestEstimator:
         self.rf_regressor = None
 
     def fine_tune(self, X_train: np.array, y_train: np.array, n_iter: int = 50):
-        step = (self.max_n_est - self.min_n_est) // (n_iter + 1)
+        step = math.ceil((self.max_n_est - self.min_n_est) / n_iter)
         n_est_list = list(range(self.min_n_est, self.max_n_est + 1, step))
         tscv = tscv = TimeSeriesSplit(n_splits=self.cv_folds)
         scores = {}
@@ -43,12 +44,13 @@ class RandomForestEstimator:
             print(f"Iterating with {n_est} estimators")
             cv_score = 0.0
             rf_regressor = RandomForestRegressor(
-                random_state=self.seed, n_estimators=n_est
+                random_state=self.seed, n_estimators=n_est, n_jobs=-1
             )
             for train_index, valid_index in tscv.split(X_train):
                 rf_regressor.fit(X_train[train_index], y_train[train_index])
                 valid_preds = rf_regressor.predict(X_train[valid_index])
                 cv_score += mean_squared_error(y_train[valid_index], valid_preds)
+            cv_score /= self.cv_folds
             scores[n_est] = cv_score
             if cv_score < min_score:
                 min_score = cv_score
