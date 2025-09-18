@@ -110,6 +110,7 @@ class Fracdiff1D:
         """
         Find the smallest order of differentiation rendering the series stationary
         """
+        print("Making the series stationary ...")
         num_trials = 50
         order_candidates = np.linspace(start=0, stop=2, num=num_trials)
         for i, order in enumerate(order_candidates, start=1):

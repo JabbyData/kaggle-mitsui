@@ -35,6 +35,7 @@ class RandomForestEstimator:
         self.rf_regressor = None
 
     def fine_tune(self, X_train: np.array, y_train: np.array, n_iter: int = 50):
+        print("Fine-tuning model ...")
         step = math.ceil((self.max_n_est - self.min_n_est) / n_iter)
         n_est_list = list(range(self.min_n_est, self.max_n_est + 1, step))
         tscv = tscv = TimeSeriesSplit(n_splits=self.cv_folds)
@@ -77,31 +78,18 @@ class RandomForestEstimator:
         mape = mean_absolute_percentage_error(targets, rf_reg_preds)
         r2 = r2_score(targets, rf_reg_preds)
         table.append([mse, mae, mape, r2])
+        print("Evaluation scores on test set")
         print(tabulate.tabulate(table, headers=headers, tablefmt="github"))
+        return {
+            "mse": mse,
+            "mae": mae,
+            "mape": mape,
+            "r2": r2,
+        }
 
-    def plot_feature_importance(self):
-        assert (
-            self.rf_regressor is not None
-        ), "Please fine-tune the model first calling fine_tune"
-
-        fig = go.Figure()
-
-        fig.add_trace(
-            go.Bar(
-                x=list(range(len(self.rf_regressor.feature_importances_))),
-                y=self.rf_regressor.feature_importances_,
-            )
-        )
-
-        fig.update_layout(
-            title="Feature Importance",
-            xaxis_title="Feature Index",
-            yaxis_title="Importance",
-        )
-
-        fig.show()
-
-    def select_feature(self, X: np.array, y: np.array, n_seed_iter: int = 10):
+    def select_feature(
+        self, X: np.array, y: np.array, feature_names: list, n_seed_iter: int = 10
+    ):
         assert (
             self.rf_regressor is not None
         ), "No model assigned, please fine-tune the model first calling fine_tune"
@@ -115,8 +103,11 @@ class RandomForestEstimator:
 
         scores = {"baseline": baseline_score}
         for feature_index in range(X.shape[1]):
-            print(f"Analyzing feature n° {feature_index + 1}/{X.shape[1]}")
-            scores[feature_index] = []
+            feature_name = feature_names[feature_index]
+            print(
+                f"Analyzing feature n° {feature_index + 1}/{X.shape[1]} : {feature_name}"
+            )
+            scores[feature_name] = []
             for seed_iter in np.random.randint(0, 10000, size=n_seed_iter):
                 score = 0.0
                 for train_index, valid_index in tscv.split(X):
@@ -133,6 +124,6 @@ class RandomForestEstimator:
                     ).permutation(X_valid[:, feature_index])
                     preds = self.rf_regressor.predict(X_valid)
                     score += mean_squared_error(y_valid, preds)
-                scores[feature_index].append(score / self.cv_folds)
+                scores[feature_name].append(score / self.cv_folds)
 
         return scores

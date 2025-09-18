@@ -6,6 +6,7 @@ import numpy as np
 from statsmodels.tsa.stattools import acf, pacf
 from copy import deepcopy
 import plotly.graph_objects as go
+import os
 
 
 class AutoCorrelator:
@@ -31,7 +32,7 @@ class AutoCorrelator:
             "p-val": acf_stats[3],  # excludes lag 0
         }
 
-    def plot_acf_stats(self, series: np.array):
+    def save_plot_acf_stats(self, series: np.array, img_path: str):
         assert (
             self.alpha is not None
         ), "Please assign a confidence level alpha to the instance"
@@ -78,7 +79,7 @@ class AutoCorrelator:
             showlegend=True,
         )
 
-        fig_acf.show()
+        fig_acf.write_image(img_path)
 
     def get_pacf_stats(self, series: np.array):
         """
@@ -94,7 +95,7 @@ class AutoCorrelator:
             "confint": acf_stats[1],
         }
 
-    def plot_pacf_stats(self, series: np.array):
+    def save_plot_pacf_stats(self, series: np.array, img_path: str):
         assert (
             self.alpha is not None
         ), "Please assign a confidence level alpha to the instance"
@@ -141,7 +142,7 @@ class AutoCorrelator:
             showlegend=True,
         )
 
-        fig_pacf.show()
+        fig_pacf.write_image(img_path)
 
     def select_lags(self, series: np.array, mode: str = "indirect"):
         """

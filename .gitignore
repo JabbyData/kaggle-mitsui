@@ -29,4 +29,5 @@ TestResults.xml
 # notebook
 **.ipynb
 
-
+# images
+**.png

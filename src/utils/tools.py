@@ -1,6 +1,7 @@
 # Module to automate data processing
 import pandas as pd
 import numpy as np
+import plotly.graph_objects as go
 
 
 def compute_log_returns(s: pd.Series, lag: int):
@@ -37,6 +38,64 @@ def check_similar_vals(s1: pd.Series, s2: pd.Series, precision: int):
 def split_lag(s: pd.Series, relevant_lags: list):
     res_df = pd.DataFrame()
     for lag in relevant_lags:
-        res_df["L" + str(lag)] = s.shift(-lag)
+        res_df["L" + str(lag)] = s.shift(lag)
 
     return res_df.dropna()
+
+
+def save_plot_cv_scores(
+    scores: dict, title: str, xaxis: str, yaxis: str, img_path: str
+):
+    fig = go.Figure()
+
+    fig.add_trace(go.Scatter(x=list(scores.keys()), y=list(scores.values())))
+
+    fig.update_layout(
+        title=title,
+        xaxis_title=xaxis,
+        yaxis_title=yaxis,
+    )
+
+    fig.write_image(img_path)
+
+
+def save_plot_feature_importance(scores: dict, img_path: str):
+    """
+    Display feature importance box plots
+    """
+
+    feature_names = list(scores.keys())
+
+    fig = go.Figure()
+
+    for feature_name in feature_names:
+        if feature_name != "baseline":
+            fig.add_trace(
+                go.Box(
+                    y=scores[feature_name],
+                    name=feature_name,
+                    boxpoints="outliers",
+                    marker_color="blue",
+                    line=dict(color="blue"),
+                    showlegend=False,
+                )
+            )
+
+    fig.add_shape(
+        type="line",
+        x0=-0.5,
+        x1=len(feature_names) - 0.5,
+        y0=scores["baseline"],
+        y1=scores["baseline"],
+        line=dict(color="red", width=2, dash="dash"),
+        name="Baseline",
+        showlegend=True,
+    )
+
+    fig.update_layout(
+        title="Permutation Feature Importance (Random Shuffling)",
+        xaxis_title="Feature score",
+        yaxis_title="MSE",
+        showlegend=True,
+    )
+    fig.write_image(img_path)

@@ -4,6 +4,7 @@ Module to handle missing values in series
 
 import pandas as pd
 import plotly.graph_objects as go
+import os
 
 
 class MissingHandler:
@@ -11,6 +12,7 @@ class MissingHandler:
         self.method = method
 
     def get_completed(self, dataframe: pd.DataFrame, series_name: str, index_name: str):
+        print("Handling missing values ...")
         series = dataframe[[index_name, series_name]].copy()
         series[index_name] = pd.to_datetime(series[index_name], unit="D", origin="unix")
         series = series.set_index(index_name)
@@ -20,8 +22,12 @@ class MissingHandler:
         series_completed = series.interpolate(method="time")
         return series_completed
 
-    def plot_completed_series(
-        self, dataframe: pd.DataFrame, series_name: str, index_name: str
+    def save_plot_completed_series(
+        self,
+        dataframe: pd.DataFrame,
+        series_name: str,
+        index_name: str,
+        img_path: str,
     ):
         series = dataframe[[index_name, series_name]].copy()
         series[index_name] = pd.to_datetime(series[index_name], unit="D", origin="unix")
@@ -54,4 +60,4 @@ class MissingHandler:
             title=f"Plot of completed series {series_name}",
         )
 
-        fig.show()
+        fig.write_image(img_path)
