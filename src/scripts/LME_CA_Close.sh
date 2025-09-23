@@ -16,10 +16,11 @@ MAX_EST=300
 MODEL=random_forest
 CV_FOLDS=5
 LOSS=MSE
+PATH_RF_CONFIG=src/res/rf_config.json
 
 ## DEBUG
-MIN_EST=10
-MAX_EST=20
+# MIN_EST=10
+# MAX_EST=20
 
 python src/run_main.py \
     --series_name $SERIES_NAME \
@@ -36,3 +37,4 @@ python src/run_main.py \
     --max_est $MAX_EST \
     --cv_folds $CV_FOLDS \
     --loss $LOSS \
+    --path_rf_config $PATH_RF_CONFIG \

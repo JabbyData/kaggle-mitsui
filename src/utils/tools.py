@@ -10,7 +10,7 @@ def compute_log_returns(s: pd.Series, lag: int):
         try:
             s_log_returns.iloc[t] = np.log(s.iloc[t + lag + 1]) - np.log(
                 s.iloc[t + 1]
-            )  # Wait for both stock to close
+            )  # Wait for both stocks to close
         except Exception:
             s_log_returns.iloc[t] = np.nan
     return s_log_returns
@@ -56,6 +56,11 @@ def save_plot_cv_scores(
         yaxis_title=yaxis,
     )
 
+    fig.update_layout(
+        xaxis=dict(showgrid=True),
+        yaxis=dict(showgrid=True),
+    )
+    
     fig.write_image(img_path)
 
 
@@ -98,4 +103,20 @@ def save_plot_feature_importance(scores: dict, img_path: str):
         yaxis_title="MSE",
         showlegend=True,
     )
+    fig.update_layout(
+        xaxis=dict(showgrid=True),
+        yaxis=dict(showgrid=True),
+    )
     fig.write_image(img_path)
+
+def warmup_test(train_df_copy: pd.DataFrame, test_df: pd.DataFrame, index_name: str, relevant_lags: list, f_differentiator):
+    """
+    Warmup test set with last train set to match real test legnth when performing fracdiff and lags creation.
+    """
+    max_lag = sorted(relevant_lags)[-1]
+    fd_warmup_index = len(f_differentiator.fd_weights) - 1
+    extra_rows = train_df_copy.tail(max_lag + fd_warmup_index).copy(deep=True)
+    test_start_id = test_df[index_name].iloc[0]
+    extra_rows[index_name] = np.arange(test_start_id - max_lag - fd_warmup_index, test_start_id)
+    test_df = pd.concat([extra_rows, test_df], ignore_index=True)
+    return test_df

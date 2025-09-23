@@ -105,4 +105,11 @@ def init_parser(description: str = ""):
         default="MSE",
         help="Optimization loss",
     )
+    parser.add_argument(
+        "--path_rf_config",
+        type=str,
+        required=True,
+        default="src/res/rf_config.json",
+        help="Path to Random Forest configs",
+    )
     return parser

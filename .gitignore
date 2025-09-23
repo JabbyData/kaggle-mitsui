@@ -31,3 +31,9 @@ TestResults.xml
 
 # images
 **.png
+
+# text file
+**.txt
+
+# json
+**.json
