@@ -37,3 +37,9 @@ TestResults.xml
 
 # json
 **.json
+
+# scripts
+src/scripts/
+
+# optuna logs
+db.sqlite3

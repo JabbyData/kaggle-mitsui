@@ -1,2 +1,0 @@
-Evaluation Results for LME_CA_Close_LR4 base
-========================================

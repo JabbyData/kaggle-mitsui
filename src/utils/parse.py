@@ -77,6 +77,9 @@ def init_parser(description: str = ""):
         default="random_forest",
         help="Machine learning model",
     )
+
+    # Optimization
+
     parser.add_argument(
         "--min_est",
         type=int,
@@ -92,11 +95,46 @@ def init_parser(description: str = ""):
         help="Maximum number of estimators",
     )
     parser.add_argument(
+        "--min_samples_split",
+        type=int,
+        required=True,
+        default=2,
+        help="Minimum number of samples to split tree",
+    )
+    parser.add_argument(
+        "--max_samples_split",
+        type=int,
+        required=True,
+        default=20,
+        help="Maximum number of minimum number of samples to split tree",
+    )
+    parser.add_argument(
+        "--min_impurity_decrease",
+        type=float,
+        required=True,
+        default=0.0,
+        help="Minimum impurity decrease to split tree",
+    )
+    parser.add_argument(
+        "--max_impurity_decrease",
+        type=float,
+        required=True,
+        default=0.1,
+        help="Maximum minimum impurity decrease to split tree",
+    )
+    parser.add_argument(
         "--cv_folds",
         type=int,
         required=True,
         default=5,
         help="Number of CV folds",
+    )
+    parser.add_argument(
+        "--n_trials",
+        type=int,
+        required=True,
+        default=50,
+        help="Number of OPTUNA trials",
     )
     parser.add_argument(
         "--loss",
@@ -105,6 +143,8 @@ def init_parser(description: str = ""):
         default="MSE",
         help="Optimization loss",
     )
+
+
     parser.add_argument(
         "--path_rf_config",
         type=str,
@@ -112,4 +152,15 @@ def init_parser(description: str = ""):
         default="src/res/rf_config.json",
         help="Path to Random Forest configs",
     )
+
+    # Feature selection
+
+    parser.add_argument(
+    "--n_seed_iter",
+    type=int,
+    required=True,
+    default=50,
+    help="Number of different seeds used for feature selection",
+    )
+
     return parser
